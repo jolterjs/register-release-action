@@ -1,0 +1,33 @@
+name: Register Jolter release
+description: Register a published GitHub release with the Jolter plugin registry
+author: Jolter
+branding:
+  icon: package
+  color: green
+inputs:
+  registry-url:
+    description: Jolter registry base URL
+    required: true
+    default: https://registry.jolter.dev
+  plugin-name:
+    description: Canonical Jolter plugin name or alias
+    required: true
+  github-token:
+    description: Repository-scoped GitHub token with contents write permission
+    required: true
+  version:
+    description: Semantic version; defaults to the release tag without a leading v
+    required: false
+  release-tag:
+    description: GitHub release tag; defaults to the published release event tag
+    required: false
+outputs:
+  version:
+    description: Registered semantic version
+  release-tag:
+    description: Registered GitHub release tag
+  registered:
+    description: true when created, false when the version already existed
+runs:
+  using: node24
+  main: dist/index.js
