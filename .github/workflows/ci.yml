@@ -86,13 +86,94 @@ jobs:
             style
             ci
           assignees: ${{ github.repository_owner }}
-          author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
-          committer: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+          author: "jolterbot <292917661+jolterbot@users.noreply.github.com>"
+          committer: "jolterbot <292917661+jolterbot@users.noreply.github.com>"
 
       - name: Enable auto-merge for Prettier PR
         if: steps.cpr.outputs.pull-request-number != ''
         env:
           GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
+        run: |
+          gh pr merge "$PR_NUMBER" --auto --squash --delete-branch
+
+  dist:
+    name: Dist Gate (ncc bundle)
+    if: ${{ github.event_name != 'pull_request' }}
+    runs-on: ubuntu-latest
+    environment: ci
+
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24.x
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build dist and check for changes
+        id: dist
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          bun run build
+
+          if git diff --quiet -- dist; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update dist PR
+        if: steps.dist.outputs.changed == 'true'
+        id: cpr
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.JOLTERBOT_TOKEN || github.token }}
+          commit-message: "build: update bundled dist"
+          branch: "automation/update-dist"
+          delete-branch: true
+          title: "build: update bundled dist"
+          body: |
+            ## Automated Dist Bundle Update
+
+            This pull request was created automatically by Register Jolter Release Action CI.
+
+            ### Changes
+            - Rebuilt the committed `dist/` bundle with `bun run build`
+            - Updated generated action runtime files
+
+            ### Automation
+            This PR is safe to auto-merge once required checks pass.
+          labels: |
+            automated
+            dist
+            build
+            ci
+          assignees: ${{ github.repository_owner }}
+          author: "jolterbot <292917661+jolterbot@users.noreply.github.com>"
+          committer: "jolterbot <292917661+jolterbot@users.noreply.github.com>"
+
+      - name: Enable auto-merge for dist PR
+        if: steps.cpr.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ secrets.JOLTERBOT_TOKEN || github.token }}
           PR_NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
         run: |
           gh pr merge "$PR_NUMBER" --auto --squash --delete-branch
