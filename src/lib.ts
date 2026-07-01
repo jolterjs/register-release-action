@@ -24,10 +24,7 @@ export interface RegisterReleaseResult {
   body: unknown;
 }
 
-export type Fetcher = (
-  input: RequestInfo | URL,
-  init?: RequestInit,
-) => Promise<Response>;
+export type Fetcher = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 
 export class RegistryRequestError extends Error {
   status: number;
@@ -41,13 +38,10 @@ export class RegistryRequestError extends Error {
 }
 
 export function resolveRelease(context: ReleaseContext): ResolvedRelease {
-  const releaseTag =
-    context.inputReleaseTag || context.eventReleaseTag || context.refName;
+  const releaseTag = context.inputReleaseTag || context.eventReleaseTag || context.refName;
 
   if (!releaseTag) {
-    throw new Error(
-      "No release tag found. Run on release.published or provide release-tag.",
-    );
+    throw new Error("No release tag found. Run on release.published or provide release-tag.");
   }
 
   const version = context.inputVersion || releaseTag.replace(/^v/, "");
@@ -73,11 +67,7 @@ export async function registerRelease(
   fetcher: Fetcher = fetch,
 ): Promise<RegisterReleaseResult> {
   const registryUrl = input.registryUrl.replace(/\/$/, "");
-  const endpoint =
-    registryUrl +
-    "/plugins/" +
-    encodeURIComponent(input.pluginName) +
-    "/versions";
+  const endpoint = registryUrl + "/plugins/" + encodeURIComponent(input.pluginName) + "/versions";
 
   const response = await fetcher(endpoint, {
     method: "POST",
@@ -101,10 +91,7 @@ export async function registerRelease(
 
   if (!response.ok) {
     const message =
-      typeof body === "object" &&
-      body &&
-      "error" in body &&
-      typeof body.error === "string"
+      typeof body === "object" && body && "error" in body && typeof body.error === "string"
         ? body.error
         : "Registry returned HTTP " + response.status;
     throw new RegistryRequestError(response.status, message, body);

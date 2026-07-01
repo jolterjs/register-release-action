@@ -1,9 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  registerRelease,
-  resolveRelease,
-  RegistryRequestError,
-} from "../src/lib";
+import { registerRelease, resolveRelease, RegistryRequestError } from "../src/lib";
 
 describe("release resolution", () => {
   test("uses the release event and strips a leading v", () => {
@@ -52,9 +48,7 @@ describe("registry request", () => {
       fetcher,
     );
 
-    expect(requestUrl).toBe(
-      "https://registry.example/plugins/%40jolter%2Fexample/versions",
-    );
+    expect(requestUrl).toBe("https://registry.example/plugins/%40jolter%2Fexample/versions");
     expect(JSON.parse(requestBody)).toEqual({
       githubToken: "secret",
       version: "1.2.3",
@@ -85,12 +79,9 @@ describe("registry request", () => {
 
   test("throws useful registry failures", async () => {
     const fetcher = async () =>
-      new Response(
-        JSON.stringify({ error: "Repository verification failed" }),
-        {
-          status: 400,
-        },
-      );
+      new Response(JSON.stringify({ error: "Repository verification failed" }), {
+        status: 400,
+      });
 
     await expect(
       registerRelease(

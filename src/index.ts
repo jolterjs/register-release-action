@@ -1,19 +1,13 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
-import {
-  registerRelease,
-  resolveRelease,
-  RegistryRequestError,
-} from "./lib.js";
+import { registerRelease, resolveRelease, RegistryRequestError } from "./lib.js";
 
 async function run() {
   try {
     const githubToken = core.getInput("github-token", { required: true });
     core.setSecret(githubToken);
 
-    const releasePayload = github.context.payload.release as
-      | { tag_name?: string }
-      | undefined;
+    const releasePayload = github.context.payload.release as { tag_name?: string } | undefined;
     const release = resolveRelease({
       inputVersion: core.getInput("version") || undefined,
       inputReleaseTag: core.getInput("release-tag") || undefined,
@@ -22,10 +16,7 @@ async function run() {
     });
 
     core.info(
-      "Registering " +
-        core.getInput("plugin-name", { required: true }) +
-        "@" +
-        release.version,
+      "Registering " + core.getInput("plugin-name", { required: true }) + "@" + release.version,
     );
 
     const result = await registerRelease({
@@ -46,13 +37,7 @@ async function run() {
     }
   } catch (error) {
     if (error instanceof RegistryRequestError) {
-      core.setFailed(
-        error.message +
-          " (HTTP " +
-          error.status +
-          "): " +
-          JSON.stringify(error.body),
-      );
+      core.setFailed(error.message + " (HTTP " + error.status + "): " + JSON.stringify(error.body));
       return;
     }
 

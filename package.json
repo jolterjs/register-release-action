@@ -1,14 +1,36 @@
 {
   "name": "@jolter/register-release-action",
   "version": "1.0.0",
+  "description": "GitHub Action that registers Jolter plugin releases with the Jolter registry.",
   "type": "module",
   "main": "dist/index.js",
+  "homepage": "https://jolter.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jolterjs/register-release-action.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jolterjs/register-release-action/issues"
+  },
+  "author": {
+    "name": "JolterJS",
+    "url": "https://jolter.dev"
+  },
   "scripts": {
     "build": "ncc build src/index.ts -o dist --minify --source-map",
     "typecheck": "tsc --noEmit",
     "format": "prettier -w .",
+    "format:check": "prettier --check .",
     "test": "bun test"
   },
+  "keywords": [
+    "jolter",
+    "github-action",
+    "release",
+    "registry",
+    "plugin"
+  ],
+  "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.1",

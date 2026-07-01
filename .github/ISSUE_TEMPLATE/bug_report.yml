@@ -1,0 +1,53 @@
+name: Bug report
+description: Report something broken in the action.
+title: "Bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping improve Register Jolter Release Action.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the unexpected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      description: Describe the behavior you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Workflow snippet
+      description: Include the workflow step that uses this action. Remove secrets.
+      render: yaml
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Action logs
+      description: Paste relevant logs with secrets removed.
+      render: shell
+  - type: input
+    id: action-version
+    attributes:
+      label: Action version
+      placeholder: "v1"
+    validations:
+      required: true
+  - type: input
+    id: runner
+    attributes:
+      label: Runner
+      placeholder: "ubuntu-latest"
+  - type: input
+    id: registry-url
+    attributes:
+      label: Registry URL
+      placeholder: "https://registry.jolter.dev"

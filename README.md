@@ -53,9 +53,14 @@ Rerunning the action is safe: an HTTP 409 response for an existing version is re
 
 ## Development
 
-    bun install
-    bun run typecheck
-    bun test
-    bun run build
+```bash
+bun install
+bun run typecheck
+bun test
+bun run build
+bun run format:check
+```
 
 GitHub executes dist/index.js, so rebuild and commit dist whenever source changes.
+
+See `CONTRIBUTING.md` for contribution guidelines and local development notes.
