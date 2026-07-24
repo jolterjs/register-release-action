@@ -3,7 +3,7 @@ description: Register a published GitHub release with the Jolter plugin registry
 author: Jolter
 branding:
   icon: package
-  color: green
+  color: gray-dark
 inputs:
   registry-url:
     description: Jolter registry base URL
