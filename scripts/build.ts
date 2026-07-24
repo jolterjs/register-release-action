@@ -10,7 +10,7 @@ if (fs.existsSync(mapPath)) {
   const mapContent = fs.readFileSync(mapPath, "utf8");
   const map = JSON.parse(mapContent);
   if (map.sources) {
-    map.sources = map.sources.map((s: string) => s.split("\\\\").join("/"));
+    map.sources = map.sources.map((s: string) => s.split("\\").join("/"));
     fs.writeFileSync(mapPath, JSON.stringify(map));
   }
 }
