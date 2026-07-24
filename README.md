@@ -24,7 +24,7 @@ jobs:
   register:
     runs-on: ubuntu-latest
     steps:
-      - uses: jolterjs/register-release-action@v1
+      - uses: jolterjs/register-release-action@v1.1
         with:
           registry-url: https://registry.jolter.dev
           plugin-name: "@jolter/example"

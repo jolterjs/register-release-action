@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Register release with Jolter
-        uses: jolterjs/register-release-action@v1
+        uses: jolterjs/register-release-action@v1.1
         with:
           registry-url: ${{ vars.JOLTER_REGISTRY_URL }}
           plugin-name: ${{ vars.JOLTER_PLUGIN_NAME }}
