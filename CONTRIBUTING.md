@@ -4,8 +4,8 @@ Thanks for helping improve Register Jolter Release Action.
 
 ## Development Setup
 
-This action uses Bun for development, TypeScript for source, and `ncc` to bundle
-the runtime files committed in `dist/`.
+This action uses Bun for development, TypeScript for source, and `bun build` to bundle
+it into a single ESM file that can be distributed to GitHub Actions runners.
 
 ```bash
 bun install
