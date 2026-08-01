@@ -10,6 +10,30 @@ The release must contain:
 
 ## Use
 
+### Using GitHub OIDC (Recommended)
+
+```yaml
+name: Register Jolter release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: jolterjs/register-release-action@v1.3
+        with:
+          registry-url: https://registry.jolter.dev
+          plugin-name: "@jolter/example"
+          github-token: ${{ github.token }}
+```
+
 ### Using a GitHub Token
 
 ```yaml
@@ -26,7 +50,7 @@ jobs:
   register:
     runs-on: ubuntu-latest
     steps:
-      - uses: jolterjs/register-release-action@v1.1
+      - uses: jolterjs/register-release-action@v1.3
         with:
           registry-url: https://registry.jolter.dev
           plugin-name: "@jolter/example"
@@ -46,7 +70,7 @@ jobs:
   register:
     runs-on: ubuntu-latest
     steps:
-      - uses: jolterjs/register-release-action@v1.1
+      - uses: jolterjs/register-release-action@v1.3
         with:
           registry-url: https://registry.jolter.dev
           plugin-name: "@jolter/example"
@@ -59,17 +83,19 @@ Rerunning the action is safe: an HTTP 409 response for an existing version is re
 
 ## Inputs
 
-| Input        | Required | Description                                                   |
-| ------------ | -------- | ------------------------------------------------------------- |
-| registry-url | Yes      | Registry server origin                                        |
-| plugin-name  | Yes      | Canonical plugin name or alias                                |
-| token        | No\*     | Jolter registry personal access token                         |
-| jolter-token | No\*     | Alias for `token` (Jolter registry personal access token)     |
-| github-token | No\*     | Repository-scoped GitHub token with contents write permission |
-| version      | No       | Semantic version override                                     |
-| release-tag  | No       | GitHub release tag override                                   |
+| Input             | Required | Description                                                                                 |
+| ----------------- | -------- | ------------------------------------------------------------------------------------------- |
+| registry-url      | Yes      | Registry server origin                                                                      |
+| plugin-name       | Yes      | Canonical plugin name or alias                                                              |
+| token             | No\*     | Jolter registry personal access token                                                       |
+| jolter-token      | No\*     | Alias for `token` (Jolter registry personal access token)                                   |
+| github-token      | No\*     | Repository-scoped GitHub token with contents write permission                               |
+| id-token          | No\*     | GitHub Actions OIDC ID token (automatically fetched if `id-token: write` permission is set) |
+| id-token-audience | No       | Custom audience for GitHub Actions OIDC ID token                                            |
+| version           | No       | Semantic version override                                                                   |
+| release-tag       | No       | GitHub release tag override                                                                 |
 
-_\* At least one of `token` (`jolter-token`) or `github-token` must be provided._
+_\* At least one authentication method must be provided: `token`, `github-token`, or GitHub Actions OIDC permission (`id-token: write`)._
 
 ## Outputs
 

@@ -6,10 +6,22 @@ async function run() {
   try {
     const token = core.getInput("token") || core.getInput("jolter-token") || undefined;
     const githubToken = core.getInput("github-token") || undefined;
+    let idToken = core.getInput("id-token") || undefined;
 
-    if (!token && !githubToken) {
+    if (!idToken && process.env.ACTIONS_ID_TOKEN_REQUEST_URL) {
+      try {
+        const audience = core.getInput("id-token-audience") || undefined;
+        idToken = await core.getIDToken(audience);
+      } catch (err) {
+        core.debug(
+          "Failed to retrieve OIDC ID token: " + (err instanceof Error ? err.message : String(err)),
+        );
+      }
+    }
+
+    if (!token && !githubToken && !idToken) {
       throw new Error(
-        "Either 'token' (Jolter registry personal access token) or 'github-token' must be provided.",
+        "Either 'token' (Jolter registry personal access token), 'github-token', or GitHub Actions OIDC permission ('id-token: write') must be provided.",
       );
     }
 
@@ -18,6 +30,9 @@ async function run() {
     }
     if (githubToken) {
       core.setSecret(githubToken);
+    }
+    if (idToken) {
+      core.setSecret(idToken);
     }
 
     const releasePayload = github.context.payload.release as { tag_name?: string } | undefined;
@@ -37,6 +52,7 @@ async function run() {
       pluginName: core.getInput("plugin-name", { required: true }),
       token,
       githubToken,
+      idToken,
       ...release,
     });
 

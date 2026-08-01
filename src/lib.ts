@@ -16,6 +16,7 @@ export interface RegisterReleaseInput extends ResolvedRelease {
   registryUrl: string;
   pluginName: string;
   githubToken?: string;
+  idToken?: string;
   token?: string;
 }
 
@@ -67,8 +68,8 @@ export async function registerRelease(
   input: RegisterReleaseInput,
   fetcher: Fetcher = fetch,
 ): Promise<RegisterReleaseResult> {
-  if (!input.token && !input.githubToken) {
-    throw new Error("Either 'token' or 'githubToken' must be provided");
+  if (!input.token && !input.githubToken && !input.idToken) {
+    throw new Error("Either 'token', 'githubToken', or 'idToken' must be provided");
   }
 
   const registryUrl = input.registryUrl.replace(/\/$/, "");
@@ -89,6 +90,9 @@ export async function registerRelease(
   };
   if (input.githubToken) {
     bodyPayload.githubToken = input.githubToken;
+  }
+  if (input.idToken) {
+    bodyPayload.idToken = input.idToken;
   }
 
   const response = await fetcher(endpoint, {

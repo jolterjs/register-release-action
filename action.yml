@@ -21,6 +21,12 @@ inputs:
   github-token:
     description: Repository-scoped GitHub token with contents write permission
     required: false
+  id-token:
+    description: GitHub Actions OIDC ID token (automatically fetched if id-token write permission is enabled)
+    required: false
+  id-token-audience:
+    description: Custom audience for GitHub Actions OIDC ID token
+    required: false
   version:
     description: Semantic version; defaults to the release tag without a leading v
     required: false

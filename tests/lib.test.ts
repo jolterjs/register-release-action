@@ -121,7 +121,33 @@ describe("registry request", () => {
     });
   });
 
-  test("throws if neither token nor githubToken is provided", async () => {
+  test("supports sending idToken for OIDC authentication", async () => {
+    let requestBody = "";
+    const fetcher = async (_url: string | URL | Request, init?: RequestInit) => {
+      requestBody = String(init?.body);
+      return new Response(JSON.stringify({ success: true }), { status: 201 });
+    };
+
+    const result = await registerRelease(
+      {
+        registryUrl: "https://registry.example/",
+        pluginName: "example",
+        idToken: "oidc_jwt_token",
+        version: "1.2.3",
+        releaseTag: "v1.2.3",
+      },
+      fetcher,
+    );
+
+    expect(JSON.parse(requestBody)).toEqual({
+      idToken: "oidc_jwt_token",
+      version: "1.2.3",
+      releaseTag: "v1.2.3",
+    });
+    expect(result.registered).toBe(true);
+  });
+
+  test("throws if neither token, githubToken, nor idToken is provided", async () => {
     await expect(
       registerRelease({
         registryUrl: "https://registry.example",
@@ -129,7 +155,7 @@ describe("registry request", () => {
         version: "1.2.3",
         releaseTag: "v1.2.3",
       }),
-    ).rejects.toThrow("Either 'token' or 'githubToken' must be provided");
+    ).rejects.toThrow("Either 'token', 'githubToken', or 'idToken' must be provided");
   });
 
   test("treats an existing version as an idempotent result", async () => {
