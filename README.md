@@ -1,6 +1,6 @@
 # Register Jolter Release Action
 
-GitHub Action that registers a published plugin release with the Jolter registry. It submits release metadata and the repository-scoped GitHub token; plugin artifacts remain hosted in the GitHub Release.
+GitHub Action that registers a published plugin release with the Jolter registry using either a Jolter registry personal token or a repository-scoped GitHub token; plugin artifacts remain hosted in the GitHub Release.
 
 The release must contain:
 
@@ -9,6 +9,8 @@ The release must contain:
 - Optional checksums.txt
 
 ## Use
+
+### Using a GitHub Token
 
 ```yaml
 name: Register Jolter release
@@ -31,6 +33,26 @@ jobs:
           github-token: ${{ github.token }}
 ```
 
+### Using a Jolter Registry Personal Access Token
+
+```yaml
+name: Register Jolter release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: jolterjs/register-release-action@v1.1
+        with:
+          registry-url: https://registry.jolter.dev
+          plugin-name: "@jolter/example"
+          token: ${{ secrets.JOLTER_REGISTRY_TOKEN }}
+```
+
 The action obtains the release tag from the release event and strips a leading v for the semantic version. version and release-tag inputs can override this behavior.
 
 Rerunning the action is safe: an HTTP 409 response for an existing version is reported as registered=false rather than failing the workflow.
@@ -41,9 +63,13 @@ Rerunning the action is safe: an HTTP 409 response for an existing version is re
 | ------------ | -------- | ------------------------------------------------------------- |
 | registry-url | Yes      | Registry server origin                                        |
 | plugin-name  | Yes      | Canonical plugin name or alias                                |
-| github-token | Yes      | Repository-scoped GitHub token with contents write permission |
+| token        | No\*     | Jolter registry personal access token                         |
+| jolter-token | No\*     | Alias for `token` (Jolter registry personal access token)     |
+| github-token | No\*     | Repository-scoped GitHub token with contents write permission |
 | version      | No       | Semantic version override                                     |
 | release-tag  | No       | GitHub release tag override                                   |
+
+_\* At least one of `token` (`jolter-token`) or `github-token` must be provided._
 
 ## Outputs
 

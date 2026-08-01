@@ -11,9 +11,18 @@ jobs:
   register:
     runs-on: ubuntu-latest
     steps:
-      - name: Register release with Jolter
+      # Option 1: Use repository-scoped GitHub token
+      - name: Register release with Jolter (GitHub token)
         uses: jolterjs/register-release-action@v1.1
         with:
           registry-url: ${{ vars.JOLTER_REGISTRY_URL }}
           plugin-name: ${{ vars.JOLTER_PLUGIN_NAME }}
           github-token: ${{ github.token }}
+
+      # Option 2: Use Jolter registry personal access token
+      # - name: Register release with Jolter (Personal token)
+      #   uses: jolterjs/register-release-action@v1.1
+      #   with:
+      #     registry-url: ${{ vars.JOLTER_REGISTRY_URL }}
+      #     plugin-name: ${{ vars.JOLTER_PLUGIN_NAME }}
+      #     token: ${{ secrets.JOLTER_REGISTRY_TOKEN }}

@@ -15,7 +15,8 @@ export interface ResolvedRelease {
 export interface RegisterReleaseInput extends ResolvedRelease {
   registryUrl: string;
   pluginName: string;
-  githubToken: string;
+  githubToken?: string;
+  token?: string;
 }
 
 export interface RegisterReleaseResult {
@@ -66,21 +67,34 @@ export async function registerRelease(
   input: RegisterReleaseInput,
   fetcher: Fetcher = fetch,
 ): Promise<RegisterReleaseResult> {
+  if (!input.token && !input.githubToken) {
+    throw new Error("Either 'token' or 'githubToken' must be provided");
+  }
+
   const registryUrl = input.registryUrl.replace(/\/$/, "");
   const endpoint = registryUrl + "/plugins/" + encodeURIComponent(input.pluginName) + "/versions";
 
+  const headers: Record<string, string> = {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+    "User-Agent": "@jolter/register-release-action",
+  };
+  if (input.token) {
+    headers["Authorization"] = "Bearer " + input.token;
+  }
+
+  const bodyPayload: Record<string, string> = {
+    version: input.version,
+    releaseTag: input.releaseTag,
+  };
+  if (input.githubToken) {
+    bodyPayload.githubToken = input.githubToken;
+  }
+
   const response = await fetcher(endpoint, {
     method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      "User-Agent": "@jolter/register-release-action",
-    },
-    body: JSON.stringify({
-      githubToken: input.githubToken,
-      version: input.version,
-      releaseTag: input.releaseTag,
-    }),
+    headers,
+    body: JSON.stringify(bodyPayload),
     signal: AbortSignal.timeout(30_000),
   });
   const body = await responseBody(response);

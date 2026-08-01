@@ -12,9 +12,15 @@ inputs:
   plugin-name:
     description: Canonical Jolter plugin name or alias
     required: true
+  token:
+    description: Jolter registry personal access token
+    required: false
+  jolter-token:
+    description: Alias for token (Jolter registry personal access token)
+    required: false
   github-token:
     description: Repository-scoped GitHub token with contents write permission
-    required: true
+    required: false
   version:
     description: Semantic version; defaults to the release tag without a leading v
     required: false

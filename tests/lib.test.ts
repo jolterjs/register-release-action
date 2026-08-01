@@ -57,6 +57,81 @@ describe("registry request", () => {
     expect(result.registered).toBe(true);
   });
 
+  test("supports Jolter registry personal token with Bearer authorization header", async () => {
+    let requestUrl = "";
+    let requestHeaders: HeadersInit | undefined;
+    let requestBody = "";
+    const fetcher = async (url: string | URL | Request, init?: RequestInit) => {
+      requestUrl = String(url);
+      requestHeaders = init?.headers;
+      requestBody = String(init?.body);
+      return new Response(JSON.stringify({ success: true }), { status: 201 });
+    };
+
+    const result = await registerRelease(
+      {
+        registryUrl: "https://registry.example/",
+        pluginName: "@jolter/example",
+        token: "jolter_pat_12345",
+        version: "1.2.3",
+        releaseTag: "v1.2.3",
+      },
+      fetcher,
+    );
+
+    expect(requestUrl).toBe("https://registry.example/plugins/%40jolter%2Fexample/versions");
+    expect((requestHeaders as Record<string, string>)["Authorization"]).toBe(
+      "Bearer jolter_pat_12345",
+    );
+    expect(JSON.parse(requestBody)).toEqual({
+      version: "1.2.3",
+      releaseTag: "v1.2.3",
+    });
+    expect(result.registered).toBe(true);
+  });
+
+  test("supports sending both token and githubToken when provided", async () => {
+    let requestHeaders: HeadersInit | undefined;
+    let requestBody = "";
+    const fetcher = async (_url: string | URL | Request, init?: RequestInit) => {
+      requestHeaders = init?.headers;
+      requestBody = String(init?.body);
+      return new Response(JSON.stringify({ success: true }), { status: 201 });
+    };
+
+    await registerRelease(
+      {
+        registryUrl: "https://registry.example/",
+        pluginName: "example",
+        token: "jolter_pat_12345",
+        githubToken: "gh_secret",
+        version: "1.2.3",
+        releaseTag: "v1.2.3",
+      },
+      fetcher,
+    );
+
+    expect((requestHeaders as Record<string, string>)["Authorization"]).toBe(
+      "Bearer jolter_pat_12345",
+    );
+    expect(JSON.parse(requestBody)).toEqual({
+      githubToken: "gh_secret",
+      version: "1.2.3",
+      releaseTag: "v1.2.3",
+    });
+  });
+
+  test("throws if neither token nor githubToken is provided", async () => {
+    await expect(
+      registerRelease({
+        registryUrl: "https://registry.example",
+        pluginName: "example",
+        version: "1.2.3",
+        releaseTag: "v1.2.3",
+      }),
+    ).rejects.toThrow("Either 'token' or 'githubToken' must be provided");
+  });
+
   test("treats an existing version as an idempotent result", async () => {
     const fetcher = async () =>
       new Response(JSON.stringify({ error: "Version already exists" }), {

@@ -4,8 +4,21 @@ import { registerRelease, resolveRelease, RegistryRequestError } from "./lib.js"
 
 async function run() {
   try {
-    const githubToken = core.getInput("github-token", { required: true });
-    core.setSecret(githubToken);
+    const token = core.getInput("token") || core.getInput("jolter-token") || undefined;
+    const githubToken = core.getInput("github-token") || undefined;
+
+    if (!token && !githubToken) {
+      throw new Error(
+        "Either 'token' (Jolter registry personal access token) or 'github-token' must be provided.",
+      );
+    }
+
+    if (token) {
+      core.setSecret(token);
+    }
+    if (githubToken) {
+      core.setSecret(githubToken);
+    }
 
     const releasePayload = github.context.payload.release as { tag_name?: string } | undefined;
     const release = resolveRelease({
@@ -22,6 +35,7 @@ async function run() {
     const result = await registerRelease({
       registryUrl: core.getInput("registry-url", { required: true }),
       pluginName: core.getInput("plugin-name", { required: true }),
+      token,
       githubToken,
       ...release,
     });
